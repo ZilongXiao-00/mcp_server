@@ -1,0 +1,97 @@
+"""MCP Server (Streamable HTTP). Registers the `text_stats` tool, which
+calls FastAPI's POST /tools/text_stats internally. Optional Bearer auth on
+the public entry point is wired in via authed_app().
+
+A factory (build_server) creates a fresh FastMCP per app so each server
+instance gets its own StreamableHTTPSessionManager (that manager's .run()
+can only be called once per instance, so the singleton approach breaks when
+serving more than once, e.g. across tests or restarts).
+"""
+from __future__ import annotations
+
+import json
+import time
+import uuid
+
+import httpx
+from mcp.server.fastmcp import FastMCP
+
+from config import FASTAPI_URL, MCP_AUTH_TOKEN, MCP_DOWNSTREAM_TIMEOUT_S
+from logging_setup import log_event, setup_logger
+
+logger = setup_logger("mcp")
+
+TOOL_NAME = "text_stats"
+TOOL_DESCRIPTION = "Analyze text and return basic text statistics (character count and word count)."
+
+
+def _new_request_id() -> str:
+    return f"req_{uuid.uuid4().hex[:12]}"
+
+
+def _tool_error(request_id: str, code: str, message: str) -> str:
+    return json.dumps({
+        "ok": False,
+        "request_id": request_id,
+        "error": {"code": code, "message": message},
+    })
+
+
+async def text_stats_impl(text: str, request_id: str | None = None) -> str:
+    """Tool logic. Reads FASTAPI_URL / MCP_DOWNSTREAM_TIMEOUT_S as module
+    globals at call time so tests can monkeypatch FASTAPI_URL."""
+    rid = request_id if request_id else _new_request_id()
+    start = time.monotonic()
+
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{FASTAPI_URL}/tools/text_stats",
+                json={"text": text, "request_id": rid},
+                timeout=MCP_DOWNSTREAM_TIMEOUT_S,
+            )
+    except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPError):
+        dur = int((time.monotonic() - start) * 1000)
+        log_event(logger, "mcp", rid, "text_stats", "error", dur, "downstream_unavailable")
+        return _tool_error(rid, "downstream_unavailable", "FastAPI unavailable")
+
+    dur = int((time.monotonic() - start) * 1000)
+    body = resp.json()
+    status = "ok" if body.get("ok") else "error"
+    err_type = None if body.get("ok") else body.get("error", {}).get("code")
+    log_event(logger, "mcp", rid, "text_stats", status, dur, err_type)
+    return json.dumps(body)
+
+
+def build_server() -> FastMCP:
+    """Factory: a fresh FastMCP with the text_stats tool registered."""
+    server = FastMCP(
+        name="openclaw-local-verify",
+        host="127.0.0.1",
+        port=8001,
+        streamable_http_path="/mcp",
+    )
+    server.tool(name=TOOL_NAME, description=TOOL_DESCRIPTION)(text_stats_impl)
+    return server
+
+
+def authed_app():
+    """ASGI app for the MCP streamable-http transport, with optional Bearer auth.
+
+    Builds a fresh server each call (each gets its own session manager).
+    When MCP_AUTH_TOKEN is set, the public /mcp entry point requires a matching
+    Bearer token. Empty token = auth off.
+    """
+    app = build_server().streamable_http_app()
+    if MCP_AUTH_TOKEN:
+        app = BearerAuthMiddleware(app, MCP_AUTH_TOKEN)
+    return app
+
+
+def run() -> None:
+    import uvicorn
+    uvicorn.run(authed_app(), host="127.0.0.1", port=8001)
+
+
+if __name__ == "__main__":
+    run()
