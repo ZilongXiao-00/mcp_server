@@ -15,9 +15,10 @@ import uuid
 
 import httpx
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from config import FASTAPI_URL, MCP_AUTH_TOKEN, MCP_DOWNSTREAM_TIMEOUT_S
+from config import FASTAPI_URL, MCP_AUTH_TOKEN, MCP_DOWNSTREAM_TIMEOUT_S, MCP_TUNNEL_MODE
 from logging_setup import log_event, setup_logger
 
 logger = setup_logger("mcp")
@@ -64,6 +65,12 @@ async def text_stats_impl(text: str, request_id: str | None = None) -> str:
     return json.dumps(body)
 
 
+def _transport_security() -> TransportSecuritySettings | None:
+    if MCP_TUNNEL_MODE:
+        return TransportSecuritySettings(enable_dns_rebinding_protection=False)
+    return None
+
+
 def build_server() -> FastMCP:
     """Factory: a fresh FastMCP with the text_stats tool registered."""
     server = FastMCP(
@@ -71,6 +78,7 @@ def build_server() -> FastMCP:
         host="127.0.0.1",
         port=8001,
         streamable_http_path="/mcp",
+        transport_security=_transport_security(),
     )
     server.tool(name=TOOL_NAME, description=TOOL_DESCRIPTION)(text_stats_impl)
     return server

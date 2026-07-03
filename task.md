@@ -22,7 +22,7 @@
 - [x] 确认本地 Python 环境可用。
 - [x] 确认可以安装或已安装 FastAPI 相关依赖。
 - [x] 确认可以安装或已安装 MCP Server 相关依赖。
-- [ ] 确认本地可以运行 `cloudflared`。
+- [x] 确认本地可以运行 `cloudflared`。
 - [x] 确认云端 OpenClaw 支持配置外部 MCP Server 或外部工具服务。
 - [x] 确认当前验证不需要访问本地真实业务文件。
 
@@ -30,14 +30,14 @@
 
 - [x] `python --version` 能正常返回版本。
 - [x] 本地能启动一个简单 Python 脚本。
-- [ ] `cloudflared --version` 能正常返回版本。
+- [x] `cloudflared --version` 能正常返回版本。
 - [x] 已确认 OpenClaw 侧的工具接入方式。
 - [x] 已明确本次只验证 1 个无副作用测试工具。
 
 ### 产出物
 
 - [x] 记录本地 Python 版本。（3.11.15 / A2A）
-- [ ] 记录 `cloudflared` 版本。
+- [x] 记录 `cloudflared` 版本。（2026.6.1）
 - [x] 记录 OpenClaw 工具接入方式。（HTTP 远程 MCP）
 
 ## 阶段 1：本地测试脚本
@@ -206,27 +206,27 @@ input:
 
 ### 功能点
 
-- [ ] 确认本地 FastAPI 已启动。
-- [ ] 确认本地 MCP Server 已启动。
-- [ ] 使用 `cloudflared tunnel --url http://localhost:<port>` 启动临时 tunnel。
-- [ ] 记录 Cloudflare Tunnel 生成的 HTTPS 地址。
-- [ ] 从非本机环境访问 tunnel 地址。
-- [ ] 验证 tunnel 可以把请求转发到本地服务。
+- [x] 确认本地 FastAPI 已启动。
+- [x] 确认本地 MCP Server 已启动。
+- [x] 使用 `cloudflared tunnel --url http://localhost:<port>` 启动临时 tunnel。
+- [x] 记录 Cloudflare Tunnel 生成的 HTTPS 地址。
+- [x] 从非本机环境访问 tunnel 地址。
+- [x] 验证 tunnel 可以把请求转发到本地服务。
 - [ ] 验证 tunnel 中断时的错误表现。
 
 ### 检查项
 
-- [ ] Cloudflare Tunnel 可以启动。
-- [ ] 可以拿到公网 HTTPS 地址。
-- [ ] 公网地址可以访问健康检查接口或 MCP 入口。
+- [x] Cloudflare Tunnel 可以启动。
+- [x] 可以拿到公网 HTTPS 地址。
+- [x] 公网地址可以访问健康检查接口或 MCP 入口。
 - [ ] 本地日志能看到来自公网地址的请求。
 - [ ] tunnel 停止后，公网地址不可用。
 - [ ] tunnel 停止后的错误表现可理解。
 
 ### 产出物
 
-- [ ] tunnel HTTPS 地址
-- [ ] tunnel 连通性测试记录
+- [x] tunnel HTTPS 地址（https://mercy-canvas-amanda-runtime.trycloudflare.com/mcp — 临时，重启 tunnel 会变）
+- [x] tunnel 连通性测试记录（公网 MCP 调用 text_stats 成功，request_id=tunnel-1）
 - [ ] tunnel 中断测试记录
 
 ## 阶段 5：OpenClaw 端到端调用

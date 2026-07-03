@@ -38,5 +38,9 @@ MAX_INPUT_CHARS: int = _env_int("MAX_INPUT_CHARS", 100_000)
 EXECUTION_TIMEOUT_S: int = _env_int("EXECUTION_TIMEOUT_S", 5)
 MCP_DOWNSTREAM_TIMEOUT_S: int = _env_int("MCP_DOWNSTREAM_TIMEOUT_S", 10)
 
+# When using cloudflared quick tunnel, set to 1 to allow non-localhost Host headers.
+# FastAPI stays localhost-only; optional MCP_AUTH_TOKEN still protects the entry.
+MCP_TUNNEL_MODE: bool = os.getenv("MCP_TUNNEL_MODE", "").lower() in ("1", "true", "yes")
+
 # Convenience: the base URL FastAPI binds to.
 FASTAPI_BASE_URL: str = f"http://{FASTAPI_HOST}:{FASTAPI_PORT}"
