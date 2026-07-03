@@ -15,6 +15,7 @@ import uuid
 
 import httpx
 from mcp.server.fastmcp import FastMCP
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from config import FASTAPI_URL, MCP_AUTH_TOKEN, MCP_DOWNSTREAM_TIMEOUT_S
 from logging_setup import log_event, setup_logger
@@ -73,6 +74,43 @@ def build_server() -> FastMCP:
     )
     server.tool(name=TOOL_NAME, description=TOOL_DESCRIPTION)(text_stats_impl)
     return server
+
+
+class BearerAuthMiddleware:
+    """ASGI middleware enforcing an optional Bearer token on the /mcp path.
+
+    When `token` is empty, all requests pass through unchanged (auth off).
+    """
+
+    def __init__(self, app: ASGIApp, token: str) -> None:
+        self.app = app
+        self.token = token
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http" or not self.token:
+            await self.app(scope, receive, send)
+            return
+
+        if scope.get("path", "").startswith("/mcp"):
+            auth = ""
+            for k, v in scope.get("headers", []):
+                if k.decode("latin-1").lower() == "authorization":
+                    auth = v.decode("latin-1")
+            token = auth.removeprefix("Bearer ").strip() if auth.startswith("Bearer ") else ""
+            if token != self.token:
+                body = json.dumps({
+                    "ok": False,
+                    "request_id": "",
+                    "error": {"code": "unauthorized", "message": "invalid or missing token"},
+                }).encode()
+                await send({
+                    "type": "http.response.start",
+                    "status": 401,
+                    "headers": [[b"content-type", b"application/json"]],
+                })
+                await send({"type": "http.response.body", "body": body})
+                return
+        await self.app(scope, receive, send)
 
 
 def authed_app():

@@ -153,3 +153,28 @@ async def test_request_id_propagated_to_fastapi(monkeypatch):
         async with mcp_server_url() as base, mcp_client(base) as session:
             await session.call_tool("text_stats", {"text": "hi", "request_id": "shared-99"})
     assert captured["request_id"] == "shared-99"
+
+
+async def test_unauthorized_when_token_required(monkeypatch):
+    # Force auth on for this test (overrides the autouse "" default).
+    monkeypatch.setattr(mcp_server, "MCP_AUTH_TOKEN", "secret-token")
+
+    async with mcp_server_url() as base:
+        async with httpx.AsyncClient() as http:
+            # No Authorization header -> rejected at the gate.
+            r = await http.post(
+                base + "/mcp",
+                headers={"Content-Type": "application/json"},
+                content=b"{}",
+            )
+            assert r.status_code == 401
+            assert r.json()["error"]["code"] == "unauthorized"
+
+            # Correct header -> passes the gate (FastMCP handles it next).
+            # We only assert it is NOT a 401.
+            r2 = await http.post(
+                base + "/mcp",
+                headers={"Content-Type": "application/json", "Authorization": "Bearer secret-token"},
+                content=b"{}",
+            )
+            assert r2.status_code != 401

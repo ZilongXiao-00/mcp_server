@@ -19,26 +19,26 @@
 
 ### 功能点
 
-- [ ] 确认本地 Python 环境可用。
-- [ ] 确认可以安装或已安装 FastAPI 相关依赖。
-- [ ] 确认可以安装或已安装 MCP Server 相关依赖。
+- [x] 确认本地 Python 环境可用。
+- [x] 确认可以安装或已安装 FastAPI 相关依赖。
+- [x] 确认可以安装或已安装 MCP Server 相关依赖。
 - [ ] 确认本地可以运行 `cloudflared`。
-- [ ] 确认云端 OpenClaw 支持配置外部 MCP Server 或外部工具服务。
-- [ ] 确认当前验证不需要访问本地真实业务文件。
+- [x] 确认云端 OpenClaw 支持配置外部 MCP Server 或外部工具服务。
+- [x] 确认当前验证不需要访问本地真实业务文件。
 
 ### 检查项
 
-- [ ] `python --version` 能正常返回版本。
-- [ ] 本地能启动一个简单 Python 脚本。
+- [x] `python --version` 能正常返回版本。
+- [x] 本地能启动一个简单 Python 脚本。
 - [ ] `cloudflared --version` 能正常返回版本。
-- [ ] 已确认 OpenClaw 侧的工具接入方式。
-- [ ] 已明确本次只验证 1 个无副作用测试工具。
+- [x] 已确认 OpenClaw 侧的工具接入方式。
+- [x] 已明确本次只验证 1 个无副作用测试工具。
 
 ### 产出物
 
-- [ ] 记录本地 Python 版本。
+- [x] 记录本地 Python 版本。（3.11.15 / A2A）
 - [ ] 记录 `cloudflared` 版本。
-- [ ] 记录 OpenClaw 工具接入方式。
+- [x] 记录 OpenClaw 工具接入方式。（HTTP 远程 MCP）
 
 ## 阶段 1：本地测试脚本
 
@@ -48,38 +48,38 @@
 
 ### 功能点
 
-- [ ] 新建 `text_stats.py`。
-- [ ] 脚本接收文本输入。
-- [ ] 脚本返回字符数。
-- [ ] 脚本返回词数。
-- [ ] 脚本返回结构化 JSON。
-- [ ] 脚本支持 `request_id`。
-- [ ] 脚本处理空文本输入。
-- [ ] 脚本处理超长文本输入。
-- [ ] 脚本处理非法参数。
+- [x] 新建 `text_stats.py`。
+- [x] 脚本接收文本输入。
+- [x] 脚本返回字符数。
+- [x] 脚本返回词数。
+- [x] 脚本返回结构化 JSON。
+- [x] 脚本支持 `request_id`。
+- [x] 脚本处理空文本输入。
+- [x] 脚本处理超长文本输入。
+- [x] 脚本处理非法参数。
 
 ### 检查项
 
-- [ ] 正常输入 `"hello openclaw"` 可以返回结果。
-- [ ] 返回结果中包含 `ok`。
-- [ ] 返回结果中包含 `result.length`。
-- [ ] 返回结果中包含 `result.word_count`。
-- [ ] 返回结果中包含 `request_id`。
-- [ ] 空文本不会导致进程崩溃。
-- [ ] 非法参数不会导致进程崩溃。
-- [ ] 输出始终是 JSON。
+- [x] 正常输入 `"hello openclaw"` 可以返回结果。
+- [x] 返回结果中包含 `ok`。
+- [x] 返回结果中包含 `result.length`。
+- [x] 返回结果中包含 `result.word_count`。
+- [x] 返回结果中包含 `request_id`。
+- [x] 空文本不会导致进程崩溃。
+- [x] 非法参数不会导致进程崩溃。
+- [x] 输出始终是 JSON。
 
 ### 建议测试用例
 
-- [ ] 输入：`hello openclaw`，预期：成功返回字符数和词数。
-- [ ] 输入：空字符串，预期：返回明确错误或合法空结果。
-- [ ] 输入：很长的字符串，预期：返回结果或明确拒绝。
-- [ ] 输入：非字符串参数，预期：返回结构化错误。
+- [x] 输入：`hello openclaw`，预期：成功返回字符数和词数。
+- [x] 输入：空字符串，预期：返回明确错误或合法空结果。
+- [x] 输入：很长的字符串，预期：返回结果或明确拒绝。
+- [x] 输入：非字符串参数，预期：返回结构化错误。
 
 ### 产出物
 
-- [ ] `text_stats.py`
-- [ ] 本地脚本测试记录
+- [x] `text_stats.py`
+- [x] 本地脚本测试记录（`pytest tests/test_text_stats.py` 8 passed）
 
 ## 阶段 2：FastAPI 服务
 
@@ -89,32 +89,32 @@
 
 ### 功能点
 
-- [ ] 新建 FastAPI 服务入口文件，例如 `app.py` 或 `main.py`。
-- [ ] 添加 `GET /health` 接口。
-- [ ] 添加 `POST /tools/text_stats` 接口。
-- [ ] 在接口中调用 `text_stats.py` 的核心函数。
-- [ ] 请求体使用 JSON。
-- [ ] 响应体使用 JSON。
-- [ ] 支持传入 `request_id`。
-- [ ] 没有传入 `request_id` 时自动生成。
-- [ ] 增加请求参数校验。
-- [ ] 增加请求体大小限制。
-- [ ] 增加单次脚本执行超时。
-- [ ] 捕获脚本异常。
-- [ ] 返回结构化错误。
-- [ ] 增加基础调用日志。
+- [x] 新建 FastAPI 服务入口文件，例如 `app.py` 或 `main.py`。
+- [x] 添加 `GET /health` 接口。
+- [x] 添加 `POST /tools/text_stats` 接口。
+- [x] 在接口中调用 `text_stats.py` 的核心函数。
+- [x] 请求体使用 JSON。
+- [x] 响应体使用 JSON。
+- [x] 支持传入 `request_id`。
+- [x] 没有传入 `request_id` 时自动生成。
+- [x] 增加请求参数校验。
+- [x] 增加请求体大小限制。
+- [x] 增加单次脚本执行超时。
+- [x] 捕获脚本异常。
+- [x] 返回结构化错误。
+- [x] 增加基础调用日志。
 
 ### 检查项
 
-- [ ] `GET /health` 返回 `ok: true`。
-- [ ] `POST /tools/text_stats` 正常输入时返回成功结果。
-- [ ] `POST /tools/text_stats` 空文本时返回预期结果。
-- [ ] `POST /tools/text_stats` 非法参数时返回结构化错误。
-- [ ] 接口异常不会暴露 Python 堆栈给调用方。
-- [ ] 日志中可以看到 `request_id`。
-- [ ] 日志中可以看到工具名称。
-- [ ] 日志中可以看到成功或失败状态。
-- [ ] 日志中可以看到耗时。
+- [x] `GET /health` 返回 `ok: true`。
+- [x] `POST /tools/text_stats` 正常输入时返回成功结果。
+- [x] `POST /tools/text_stats` 空文本时返回预期结果。
+- [x] `POST /tools/text_stats` 非法参数时返回结构化错误。
+- [x] 接口异常不会暴露 Python 堆栈给调用方。
+- [x] 日志中可以看到 `request_id`。
+- [x] 日志中可以看到工具名称。
+- [x] 日志中可以看到成功或失败状态。
+- [x] 日志中可以看到耗时。
 
 ### 建议接口
 
@@ -147,9 +147,9 @@ POST /tools/text_stats
 
 ### 产出物
 
-- [ ] FastAPI 服务文件
-- [ ] REST API 本地调用记录
-- [ ] 错误处理测试记录
+- [x] FastAPI 服务文件
+- [x] REST API 本地调用记录（smoke test + `pytest tests/test_app.py` 8 passed）
+- [x] 错误处理测试记录
 
 ## 阶段 3：本地 MCP Server
 
@@ -159,27 +159,28 @@ POST /tools/text_stats
 
 ### 功能点
 
-- [ ] 新建 MCP Server 入口文件。
-- [ ] 注册 `text_stats` 工具。
-- [ ] 为 `text_stats` 编写工具描述。
-- [ ] 为 `text_stats` 编写 input schema。
-- [ ] MCP 工具内部调用 FastAPI 的 `POST /tools/text_stats`。
-- [ ] MCP 工具透传或生成 `request_id`。
-- [ ] MCP 工具处理 FastAPI 成功响应。
-- [ ] MCP 工具处理 FastAPI 错误响应。
-- [ ] MCP 工具处理 FastAPI 不可用。
-- [ ] MCP Server 增加基础日志。
+- [x] 新建 MCP Server 入口文件。
+- [x] 注册 `text_stats` 工具。
+- [x] 为 `text_stats` 编写工具描述。
+- [x] 为 `text_stats` 编写 input schema。
+- [x] MCP 工具内部调用 FastAPI 的 `POST /tools/text_stats`。
+- [x] MCP 工具透传或生成 `request_id`。
+- [x] MCP 工具处理 FastAPI 成功响应。
+- [x] MCP 工具处理 FastAPI 错误响应。
+- [x] MCP 工具处理 FastAPI 不可用。
+- [x] MCP Server 增加基础日志。
+- [x] 可选 Bearer token 鉴权（`MCP_AUTH_TOKEN`）。
 
 ### 检查项
 
-- [ ] MCP Server 可以在本地启动。
-- [ ] 工具列表中可以看到 `text_stats`。
-- [ ] 本地 MCP 调试工具可以调用 `text_stats`。
-- [ ] 调用 MCP 工具后，FastAPI 可以收到请求。
-- [ ] MCP 返回内容和 FastAPI 返回内容一致。
-- [ ] MCP 日志中可以看到 `request_id`。
-- [ ] FastAPI 日志中可以看到同一个 `request_id`。
-- [ ] FastAPI 停止后，MCP 返回明确的下游服务不可用错误。
+- [x] MCP Server 可以在本地启动。
+- [x] 工具列表中可以看到 `text_stats`。
+- [x] 本地 MCP 调试工具可以调用 `text_stats`。
+- [x] 调用 MCP 工具后，FastAPI 可以收到请求。
+- [x] MCP 返回内容和 FastAPI 返回内容一致。
+- [x] MCP 日志中可以看到 `request_id`。
+- [x] FastAPI 日志中可以看到同一个 `request_id`。
+- [x] FastAPI 停止后，MCP 返回明确的下游服务不可用错误。
 
 ### 建议工具定义
 
@@ -193,9 +194,9 @@ input:
 
 ### 产出物
 
-- [ ] MCP Server 文件
-- [ ] MCP 工具定义
-- [ ] MCP 本地调用记录
+- [x] MCP Server 文件
+- [x] MCP 工具定义
+- [x] MCP 本地调用记录（smoke test + `pytest tests/test_mcp_server.py` 5 passed）
 
 ## 阶段 4：Cloudflare Tunnel
 
