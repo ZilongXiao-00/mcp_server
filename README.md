@@ -24,6 +24,7 @@ conda run -n A2A pytest -v
 .\scripts\start_tunnel.ps1      # terminal C (needs cloudflared)
 ```
 
+See **`docs/local-agent-openclaw-exposure-guide.md`** for the full handoff guide (architecture, security risks, OpenClaw config).
 See `runbook.md` for phases 4–7 (tunnel + OpenClaw config + security).
 See `docs/superpowers/specs/2026-07-02-openclaw-local-verify-design.md` for the design.
 
